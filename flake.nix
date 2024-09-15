@@ -14,7 +14,7 @@
   in
   {
     devShell = pkgs.mkShell {
-      buildInputs = with pkgs; [ rye ];
+      buildInputs = with pkgs; [ rye tcpdump tshark aria2 ];
       shellHook = ''
         rye sync && source .venv/bin/activate
       '';

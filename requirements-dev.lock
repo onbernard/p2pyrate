@@ -91,6 +91,7 @@ pyzmq==26.2.0
 requests==2.32.3
     # via p2pyrate
 ruff==0.6.5
+scapy==2.5.0
 six==1.16.0
     # via asttokens
     # via python-dateutil

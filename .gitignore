@@ -10,3 +10,4 @@ wheels/
 .venv
 
 .direnv/
+tests-local/
