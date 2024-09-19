@@ -44,7 +44,6 @@ class Handshake:
     pstrlen: Literal[19] = 19
     pstr: Literal[b"BitTorrent protocol"] = b"BitTorrent protocol"
     peer_id: bytes = field(default_factory=lambda: b"-PC0001-" + hashlib.sha1(b"peer").digest()[:12])
-    extended_handshake: ExtendedHandshake|None = None
 
     @classmethod
     def from_bytes(cls, buf: bytes) -> Self:
@@ -56,7 +55,6 @@ class Handshake:
             extensions=extensions,
             info_hash=info_hash,
             peer_id=peer_id,
-            extended_handshake=ExtendedHandshake.from_bytes(buf[68:])
         )
     
     def to_bytes(self) -> bytes:
@@ -68,3 +66,7 @@ class Handshake:
             self.info_hash,
             self.peer_id,
         )
+
+    @property
+    def extended_support(self) -> bool:
+        return int.from_bytes(self.extensions) & (1<<20) > 1
