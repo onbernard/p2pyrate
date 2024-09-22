@@ -6,7 +6,7 @@ import os
 
 from scapy.all import rdpcap, TCP, Raw, IP # type: ignore
 
-from p2pyrate.peer import (
+from p2pyrate.peer.handshake import (
     Handshake,
     ExtendedHandshake,
 )

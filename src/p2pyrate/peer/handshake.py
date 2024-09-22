@@ -3,11 +3,34 @@ from typing import (
     Self,
 )
 from dataclasses import dataclass, field
+from asyncio import StreamReader
 import hashlib
 import struct
 
 from bencodepy.exceptions import BencodeDecodeError
-import bencodepy
+import bencode2
+
+
+
+@dataclass
+class MetadataProtocolInfo:
+    ut_metadata: int|None
+    metadata_size: int|None
+
+
+class ExtendedHandshakeMessage(dict):
+    @property
+    def m(self) -> dict|None:
+        return self.get(b"m")
+    @property
+    def metadata_size(self) -> int|None:
+        return self.get(b"metadata_size")
+    @property
+    def metadata_p(self) -> MetadataProtocolInfo:
+        return MetadataProtocolInfo(
+            ut_metadata=self.m.get(b"ut_metadata") if self.m else None,
+            metadata_size=self.metadata_size
+        )
 
 
 @dataclass
@@ -18,9 +41,9 @@ class ExtendedHandshake:
     payload: bytes
 
     @property
-    def message(self) -> dict|None:
+    def message(self) -> ExtendedHandshakeMessage|None:
         try:
-            return bencodepy.decode(self.payload)
+            return ExtendedHandshakeMessage(bencode2.bdecode(self.payload))
         except BencodeDecodeError:
             return None
 
@@ -39,8 +62,8 @@ class ExtendedHandshake:
 
 @dataclass
 class Handshake:
-    extensions: bytes
     info_hash: bytes
+    extensions: bytes = b"\x00"
     pstrlen: Literal[19] = 19
     pstr: Literal[b"BitTorrent protocol"] = b"BitTorrent protocol"
     peer_id: bytes = field(default_factory=lambda: b"-PC0001-" + hashlib.sha1(b"peer").digest()[:12])
@@ -56,6 +79,11 @@ class Handshake:
             info_hash=info_hash,
             peer_id=peer_id,
         )
+    
+    @classmethod
+    async def from_reader(cls, reader: StreamReader) -> Self:
+        buf = await reader.readexactly(68)
+        return cls.from_bytes(buf)
     
     def to_bytes(self) -> bytes:
         return struct.pack(

@@ -24,12 +24,8 @@ asyncudp==0.11.0
     # via p2pyrate
 attrs==24.2.0
     # via aiohttp
-bencode-py==4.0.0
+bencode2==0.2.4
     # via p2pyrate
-certifi==2024.8.30
-    # via requests
-charset-normalizer==3.3.2
-    # via requests
 comm==0.2.2
     # via ipykernel
 debugpy==1.8.5
@@ -42,7 +38,6 @@ frozenlist==1.4.1
     # via aiohttp
     # via aiosignal
 idna==3.9
-    # via requests
     # via yarl
 ipykernel==6.29.5
 ipython==8.27.0
@@ -88,8 +83,6 @@ python-dateutil==2.9.0.post0
 pyzmq==26.2.0
     # via ipykernel
     # via jupyter-client
-requests==2.32.3
-    # via p2pyrate
 ruff==0.6.5
 scapy==2.5.0
 six==1.16.0
@@ -108,8 +101,6 @@ traitlets==5.14.3
     # via jupyter-client
     # via jupyter-core
     # via matplotlib-inline
-urllib3==2.2.3
-    # via requests
 wcwidth==0.2.13
     # via prompt-toolkit
 yarl==1.11.1
