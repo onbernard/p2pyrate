@@ -1,3 +1,3 @@
 # p2pyrate
 
-Describe your project here.
+BitTorrent client in pure python
