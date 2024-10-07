@@ -11,8 +11,6 @@ __all__ = [
     "Request",
     "Piece",
     "Cancel",
-    "write_message",
-    "read_message",
     "PeerMessage_T",
 ]
 
@@ -32,7 +30,5 @@ from .message import (
     Request,
     Piece,
     Cancel,
-    write_message,
-    read_message,
     PeerMessage_T,
 )

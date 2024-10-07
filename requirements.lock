@@ -29,6 +29,8 @@ frozenlist==1.4.1
     # via aiosignal
 idna==3.9
     # via yarl
+loguru==0.7.2
+    # via p2pyrate
 multidict==6.1.0
     # via aiohttp
     # via yarl

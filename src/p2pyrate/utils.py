@@ -1,6 +1,6 @@
 
-def bl_to_bitfield(boolean_list: list[bool]) -> bytes:
-    lcopy = boolean_list.copy()
+def bl_to_bitfield(bool_list: list[bool]) -> bytes:
+    lcopy = bool_list.copy()
     if len(lcopy) % 8 != 0:
         lcopy += [False] * (8-len(lcopy)%8) # Pad
     return sum(int(b)*(2**i) for i,b in enumerate(reversed(lcopy))).to_bytes(length=len(lcopy)//8)

@@ -10,6 +10,7 @@ dependencies = [
     "async-timeout>=4.0.3",
     "aiohttp>=3.10.5",
     "bencode2>=0.2.4",
+    "loguru>=0.7.2",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"

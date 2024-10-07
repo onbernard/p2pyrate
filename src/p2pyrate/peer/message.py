@@ -1,9 +1,13 @@
 from typing import (
     Literal,
+    Self,
 )
-from asyncio import StreamReader, StreamWriter
 from dataclasses import dataclass
 import struct
+
+from ..utils import bitfield_to_bl, bl_to_bitfield
+
+__all__ = ["Choke", "Unchoke", "Interested", "NotInterested", "Have", "Bitfield", "Request", "Piece", "Cancel", "PeerMessage_T"]
 
 
 @dataclass
@@ -31,32 +35,64 @@ class Have:
     payload: bytes
     message_id: Literal[4] = 4
 
+    @classmethod
+    def from_index(cls, index: int) -> Self:
+        return cls(
+            payload=struct.pack("!I", index)
+        )
+
     @property
-    def message(self) -> int:
-        ...
+    def index(self) -> int:
+        return struct.unpack("!I", self.payload)[0]
+
 
 @dataclass
 class Bitfield:
     payload: bytes
     message_id: Literal[5] = 5
 
+    @classmethod
+    def from_bool_list(cls, bool_list: list[bool]) -> Self:
+        return cls(
+            payload=bl_to_bitfield(bool_list)
+        )
+
+    @property
+    def bool_list(self) -> list[bool]:
+        return bitfield_to_bl(self.payload)
+
+
 @dataclass
 class Request:
     payload: bytes
     message_id: Literal[6] = 6
 
+    @classmethod
+    def from_block(cls, index, begin, length) -> Self:
+        return cls(
+            payload=struct.pack("!III", index, begin, length)
+        )
+
     @property
-    def message(self) -> tuple[int,int,int]:
-        ...
+    def data(self) -> tuple[int,int,int]:
+        return struct.unpack("!III", self.payload)
 
 @dataclass
 class Piece:
     payload: bytes
     message_id: Literal[7] = 7
 
+    @classmethod
+    def from_block(cls, index: int, begin: int, block: bytes) -> Self:
+        return cls(
+            payload=struct.pack("!II", index, begin) + block
+        )
+    
     @property
-    def message(self) -> tuple[int,int,bytes]:
-        ...
+    def data(self) -> tuple[int,int,bytes]:
+        assert len(self.payload) > 8
+        index, begin = struct.unpack("!II", self.payload[:8])
+        return index, begin, self.payload[8:]
 
 
 @dataclass
@@ -68,39 +104,5 @@ class Cancel:
     def message(self) -> tuple[int,int,int]:
         ...
 
+
 PeerMessage_T = Choke|Unchoke|Interested|NotInterested|Have|Bitfield|Request|Piece|Cancel
-
-
-async def read_message(reader: StreamReader) -> PeerMessage_T:
-    buf = await reader.readexactly(4)
-    m_len = struct.unpack("!I", buf[:4])[0]
-    buf = await reader.readexactly(m_len)
-    message_id = struct.unpack("!B", buf[:1])[0]
-    payload = buf[1:]
-    match message_id:
-        case 0:
-            return Choke()
-        case 1:
-            return Unchoke()
-        case 2:
-            return Interested()
-        case 3:
-            return NotInterested()
-        case 4:
-            return Have(payload=payload)
-        case 5:
-            return Bitfield(payload=payload)
-        case 6:
-            return Request(payload=payload)
-        case 7:
-            return Piece(payload=payload)
-        case 8:
-            return Cancel(payload=payload)
-        case _:
-            raise ValueError(f"unexpected message id: {message_id}")
-
-
-async def write_message(writer: StreamWriter, message: PeerMessage_T):
-    m_len = len(message.payload) +1
-    writer.write(struct.pack(f"!IB{len(message.payload)}s", m_len, message.message_id, message.payload))
-    await writer.drain()

@@ -7,7 +7,6 @@ from asyncio import StreamReader
 import hashlib
 import struct
 
-from bencodepy.exceptions import BencodeDecodeError
 import bencode2
 
 
@@ -44,7 +43,7 @@ class ExtendedHandshake:
     def message(self) -> ExtendedHandshakeMessage|None:
         try:
             return ExtendedHandshakeMessage(bencode2.bdecode(self.payload))
-        except BencodeDecodeError:
+        except Exception:
             return None
 
     @classmethod
